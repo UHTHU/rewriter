@@ -1,0 +1,9 @@
+{
+  "name": "local-rewriter",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "A browser-local, rule-based prose editor. No models or external services.",
+  "scripts": { "start": "node server.mjs", "test": "node --test tests/*.test.mjs" },
+  "engines": { "node": ">=20" }
+}

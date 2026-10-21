@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A private, rule-based writing studio. Edit locally, understand every change.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Rewriter — A little clearer.</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Rewriter home"><span class="brand-icon" aria-hidden="true">r<span>↗</span></span>rewriter<span class="version">LOCAL EDITION / 01</span></a>
+    <button class="privacy-badge" id="privacy-open"><span class="status-dot"></span> On your device <span aria-hidden="true">↗</span></button>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">LESS FILLER. MORE YOU.</p><h1>A little clearer.<br><em>Still your words.</em></h1></div>
+      <div class="intro-note"><span class="note-mark" aria-hidden="true">✳</span><p>A thoughtful second pass for your writing.<br>Simple rules. Visible changes. You decide.</p><span class="quiet-label">NO MODELS · NO UPLOADS · NO ACCOUNT</span></div>
+    </section>
+    <section class="workspace" aria-label="Writing editor">
+      <div class="workspace-toolbar">
+        <div class="document-title"><span class="file-icon" aria-hidden="true">▤</span><span id="filename">Untitled draft</span><span class="file-type">TXT / MD</span></div>
+        <div class="toolbar-actions"><button class="text-button" id="sample">Try a sample</button><span class="separator"></span><button class="text-button" id="import">Import text <span aria-hidden="true">↥</span></button><input type="file" id="file-input" accept=".txt,.md,.markdown,text/plain,text/markdown" hidden></div>
+      </div>
+      <div class="editor-grid">
+        <section class="editor-pane input-pane">
+          <div class="pane-heading"><h2><span class="pane-number">01</span> Your draft</h2><button class="text-button subtle" id="clear">Clear</button></div>
+          <label for="source" class="sr-only">Your original text</label>
+          <textarea id="source" autocomplete="off" spellcheck="false" maxlength="200000" placeholder="Start with what you want to say.&#10;&#10;Paste your writing here, or try the sample to see how it works."></textarea>
+          <div class="pane-footer"><span id="source-count">0 words</span><span>Original stays untouched</span></div>
+        </section>
+        <section class="editor-pane output-pane">
+          <div class="pane-heading"><h2><span class="pane-number">02</span> A clearer version</h2><div class="segmented" aria-label="Preview display"><button id="clean-view" aria-pressed="true">Clean</button><button id="diff-view" aria-pressed="false">Changes</button></div></div>
+          <div id="output" class="output-text" tabindex="0" aria-label="Rewritten preview"><div class="empty-state"><span class="empty-symbol" aria-hidden="true">↗</span><h3>Make room for the meaning.</h3><p>Your revised draft will appear here.<br>Every suggestion comes with a reason.</p></div></div>
+          <div class="pane-footer"><span id="output-count">Ready when you are</span><div><button class="text-button" id="copy" disabled>Copy</button><button class="text-button" id="download" disabled>Export ↧</button></div></div>
+        </section>
+      </div>
+      <div class="edit-controls">
+        <div class="rule-controls"><span class="control-label">FOCUS</span><label class="check-pill"><input type="checkbox" id="wordiness" checked> Less wordy</label><label class="check-pill"><input type="checkbox" id="clarity" checked> Plain language</label><label class="check-pill"><input type="checkbox" id="style"> Style polish</label><label class="check-pill"><input type="checkbox" id="voice"> Strong voice</label><label class="check-pill"><input type="checkbox" id="phrasing"> Fresh phrasing</label></div>
+        <button class="primary-button" id="analyze">Find improvements <span aria-hidden="true">↗</span></button>
+      </div>
+    </section>
+    <div class="under-editor"><label><input type="checkbox" id="protect-quotes" checked> Keep quoted text unchanged</label><span>Code, links, math & common citations are protected automatically.</span></div>
+    <details class="term-settings"><summary>Keep specific terms unchanged</summary><label for="protected-terms">Names, technical terms, or phrases — one per line.</label><textarea id="protected-terms" autocomplete="off" spellcheck="false" maxlength="12000" placeholder="For example:&#10;approximately normal&#10;initial conditions"></textarea><p>Case-insensitive whole-term matching. Up to 100 terms, 120 characters each. Kept only in this tab.</p></details>
+    <p id="message" class="message" role="status" aria-live="polite"></p>
+    <section class="review-section" id="review" hidden>
+      <div class="review-header"><div><p class="eyebrow">THE SECOND PASS</p><h2>Small edits, explained.<span id="change-count"></span></h2></div><div class="review-actions"><button class="text-button" id="reject-all">Keep all originals</button><button class="secondary-button" id="accept-all">Accept all</button></div></div>
+      <div class="review-layout"><div id="suggestions" class="suggestion-list"></div><aside class="review-aside"><span class="aside-mark" aria-hidden="true">↘</span><h3>A suggestion,<br>not a verdict.</h3><p>Keep what sounds like you. Rules catch patterns; you know the context.</p><div id="summary" class="summary"></div><p class="fine-print" id="review-status"></p></aside></div>
+      <div class="findings-block" id="findings-block" hidden><div class="findings-heading"><h3>Findings <span id="finding-count"></span></h3><p class="fine-print">Pattern flags from write-good and proselint. They never change your draft — decide for yourself.</p></div><div id="findings" class="finding-list"></div></div>
+    </section>
+    <footer><span>Built for a quieter kind of editing.</span><button id="about-open" class="text-button">How this works <span aria-hidden="true">↗</span></button><span>YOUR WORDS STAY HERE.</span></footer>
+  </main>
+  <dialog id="about"><button class="dialog-close text-button" id="about-close" aria-label="Close explanation">Close ×</button><p class="eyebrow">OPEN BY DESIGN</p><h2>Rules you can read.<br>Changes you control.</h2><p>This editor matches a bundled list of English phrases and proposes shorter alternatives. It uses no language models, remote APIs, analytics, cookies, or browser storage.</p><p>Your draft lives in this tab’s memory. Reloading clears it. Import reads files on your device; export creates a file on your device. The local server only serves application files.</p><h3>Where do the rules come from?</h3><p>Original Rewriter rules are combined with all 327 entries from the pinned MIT-licensed retext-simplify dataset by Titus Wormer. After merging overlaps, there are 394 distinct phrase rules. Analysis checks adapt write-good (MIT) — weasel words, passive voice, repeated words, weak wording, wordy phrases — and proselint (BSD-3-Clause) — redundancy, hedging, uncomparables. Readability scores follow textstat’s published formulas (MIT). Suggestions with a safe rewrite are offered for review; purely diagnostic checks appear as findings and never edit your text. Imported suggestions show their source and require explicit acceptance. Where available, choose among replacements or removal. Overlapping original rules retain their existing context checks. Style suggestions also require acceptance. No upstream services or dependencies are used.</p><h3>What is protected?</h3><p>The editor skips recognized code blocks, inline code, links, math, common citation forms, LaTeX commands, and optionally quoted text. You can also protect specific terms. These are pattern-based protections, not complete document parsers. Review specialist documents carefully.</p><h3>What is measured?</h3><p>Word counts, approximate words per sentence, and approximate readability (Flesch Reading Ease, Flesch–Kincaid, Gunning Fog, SMOG, Coleman–Liau, ARI) using textstat’s formulas with a heuristic syllable counter. There is no AI-authorship score or guarantee about detector outcomes. Suggestions can alter nuance; accept only the ones that fit.</p><p class="fine-print">Version 0.3 · English · Plain text & Markdown · 200,000 character limit</p></dialog>
+</body>
+</html>
