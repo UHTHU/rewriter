@@ -180,7 +180,7 @@ export function analyze(text, options = {}) {
           reason: resolvedReason, source });
         continue;
       }
-      candidates.push({ id: `${check.id}-${start}`, start, end, original, replacement,
+      candidates.push({ id: `${check.id}-${start}`, start, end, original, replacement: matchCase(original, replacement),
         reviewOnly: check.reviewOnly ?? true, category: check.category, source, reason: resolvedReason,
         alternatives: [...new Set([replacement, ...(hit.alternatives ?? check.alternatives ?? [])])] });
     }

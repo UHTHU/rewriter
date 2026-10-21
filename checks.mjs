@@ -34,6 +34,7 @@ import {
   lexicalIllusionExceptions,
 } from './vendor/proselint/checks.mjs';
 import { spellChecks } from './spell.mjs';
+import { grammarRules } from './grammar.mjs';
 
 // Original curation: intensifiers whose removal leaves the meaning intact.
 // Removal rewrites only survive at match time when grammar stays sound (the
@@ -215,4 +216,4 @@ export const patternChecks = [
 
 // Every text-level check the engine runs: regex-based patterns plus
 // scan-based checks (spell) that report their own spans and replacements.
-export const textChecks = [...patternChecks, ...spellChecks];
+export const textChecks = [...patternChecks, ...grammarRules, ...spellChecks];
