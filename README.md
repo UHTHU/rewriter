@@ -17,7 +17,7 @@ No `npm install` or build step is required. The local server serves a fixed allo
 ## Use
 
 1. Paste text, import a UTF-8 `.txt` / `.md` / `.markdown` file, or select **Try a sample**.
-2. Choose your focus: **Less wordy** and **Plain language** are on by default; **Style polish**, **Strong voice**, and **Fresh phrasing** are optional.
+2. Choose your sources — **Rewriter** rules, **retext-simplify**, **write-good**, and **proselint**; all are on by default and each suggestion or finding names the dataset it comes from.
 3. Select **Find improvements** (or Cmd/Ctrl+Enter).
 4. Review each suggestion with **Accept** or **Keep original**. Local phrase edits initially enter the preview. Imported and style suggestions are marked **Review first** and enter the preview only after acceptance. Switch to **Changes** to see before/after markup.
 5. For entries with multiple alternatives, choose a replacement (or **Remove phrase**) from the dropdown. Changing the choice resets its acceptance; accept again to apply it. Removal adjusts adjacent horizontal whitespace but does not repair grammar or punctuation.

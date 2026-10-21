@@ -160,10 +160,10 @@ function renderSuggestions() {
 }
 function run() {
   if (!source.value.trim()) { message('Add some writing first, or try the sample.'); source.focus(); return; }
-  const categories = ['wordiness', 'clarity', 'style', 'voice', 'phrasing'].filter(id => $(id).checked);
-  if (!categories.length) { message('Choose at least one focus to find improvements.'); return; }
+  const sources = ['rewriter', 'retext-simplify', 'write-good', 'proselint'].filter(id => $(`source-${id}`).checked);
+  if (!sources.length) { message('Choose at least one source to find improvements.'); return; }
   try {
-    result = analyze(source.value, { categories, protectQuotes: $('protect-quotes').checked, protectedTerms: $('protected-terms').value.split('\n').map(term => term.trim()).filter(Boolean) });
+    result = analyze(source.value, { sources, protectQuotes: $('protect-quotes').checked, protectedTerms: $('protected-terms').value.split('\n').map(term => term.trim()).filter(Boolean) });
     decisions = {};
     $('review').hidden = false;
     renderSuggestions();
@@ -193,7 +193,7 @@ $('clear').addEventListener('click', () => {
   invalidate();
   source.focus();
 });
-for (const id of ['wordiness', 'clarity', 'style', 'voice', 'phrasing', 'protect-quotes']) $(id).addEventListener('change', () => {
+for (const id of ['source-rewriter', 'source-retext-simplify', 'source-write-good', 'source-proselint', 'protect-quotes']) $(id).addEventListener('change', () => {
   const hadResult = !!result;
   invalidate();
   if (hadResult) message('Settings changed. Find improvements again to refresh your preview.');

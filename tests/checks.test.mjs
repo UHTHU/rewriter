@@ -88,3 +88,27 @@ test('new categories stay opt-in', () => {
   const opted = analyze(text, { categories: ['voice'] });
   assert.ok(opted.findings.length >= 2);
 });
+
+test('source selection isolates each dataset by repo', () => {
+  const text = 'Due to the fact that the decision was made, we left. Enter your PIN number.';
+  const rewriter = analyze(text, { sources: ['rewriter'] });
+  assert.deepEqual(rewriter.changes.map(change => change.original), ['Due to the fact that']);
+  assert.equal(rewriter.findings.length, 0);
+  const writeGood = analyze(text, { sources: ['write-good'] });
+  assert.equal(writeGood.changes.length, 0);
+  assert.ok(writeGood.findings.some(finding => finding.original === 'was made'));
+  const proselint = analyze(text, { sources: ['proselint'] });
+  assert.deepEqual(proselint.changes.map(change => change.original), ['PIN number']);
+  assert.equal(proselint.findings.length, 0);
+  const none = analyze(text, { sources: [] });
+  assert.equal(none.changes.length + none.findings.length, 0);
+});
+
+test('every suggestion and finding names its dataset', () => {
+  const text = 'The decision was made. It was quite unique.';
+  const { changes, findings } = analyze(text, { sources: ['rewriter', 'retext-simplify', 'write-good', 'proselint'] });
+  for (const item of [...changes, ...findings]) {
+    const name = item.source?.name ?? 'rewriter';
+    assert.ok(['rewriter', 'retext-simplify', 'write-good', 'proselint'].includes(name));
+  }
+});

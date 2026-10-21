@@ -96,17 +96,28 @@ function replacementFor(rule, text, end) {
   return rule.replacement;
 }
 
+// Dataset key for the source selector: rules without upstream provenance are
+// Rewriter's own. Merged overlaps keep Rewriter's defaults, so they belong to
+// "rewriter" and only expose retext-simplify as extra alternatives.
+function datasetOf(rule) {
+  return rule.source?.name ?? 'rewriter';
+}
+
 export function analyze(text, options = {}) {
   if (text.length > MAX_LENGTH) throw new Error(`Please use ${MAX_LENGTH.toLocaleString()} characters or fewer.`);
   const protectedSpans = protectedRanges(text, options);
-  const enabled = options.categories || ['wordiness', 'clarity'];
+  // `sources` selects datasets by repo; `categories` selects focus areas.
+  // When sources are given, every category in those datasets is in scope.
+  const enabled = options.sources ? null : (options.categories || ['wordiness', 'clarity']);
+  const inScope = rule => (enabled ? enabled.includes(rule.category) : true)
+    && (!options.sources || options.sources.includes(datasetOf(rule)));
   const candidates = [];
   const findings = [];
   const skippedContext = [];
   const covered = (start, end) => protectedSpans.some(span => start < span.end && end > span.start);
   for (const rule of compiledRules) {
     if (options.includeUpstream === false && rule.source) continue;
-    if (!enabled.includes(rule.category)) continue;
+    if (!inScope(rule)) continue;
     for (const match of text.matchAll(rule.pattern)) {
       const start = match.index;
       const end = start + match[0].length;
@@ -143,7 +154,7 @@ export function analyze(text, options = {}) {
   }
   for (const check of compiledPatterns) {
     if (options.includeUpstream === false && check.source) continue;
-    if (!enabled.includes(check.category)) continue;
+    if (!inScope(check)) continue;
     for (const match of text.matchAll(check.regex)) {
       const hit = check.hitGroup ? match.indices?.groups?.[check.hitGroup] : null;
       const start = hit ? hit[0] : match.index;
