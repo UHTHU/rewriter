@@ -43,4 +43,22 @@ Rewriter re-expresses textstat's published readability formulas (Flesch Reading 
 
 Vale is not bundled. Its engine is written in Go and its popular style packs (Google, Microsoft, write-good) carry separate licenses, so no part of it is reproduced here. Its editorial ideas overlap with the checks above; contributions that vendor Vale rule data under a clearly compatible license are welcome.
 
+## dictionary-en (Hunspell en_US)
+
+- Source: https://github.com/wooorm/dictionaries (npm `dictionary-en` 4.0.0)
+- Pinned commit: `8cfea406b505e4d7df52d5a19bce525df98c54ab`
+- Local copy: `vendor/dictionary-en/dictionary.mjs` (verbatim `index.aff` + `index.dic` data; no checker runtime)
+- License: (MIT AND BSD), SCOWL-derived; the complete upstream notice is retained at `vendor/dictionary-en/license`.
+
+Rewriter parses the Hunspell data at load time and expands its affix rules in its own `spell.mjs` — no code from nspell or any Hunspell implementation is bundled.
+
+## misspell
+
+- Source: https://github.com/client9/misspell
+- Pinned commit: `c0b55c8239520f6b5aa15a0207ca8b28027ba49e`
+- Local copy: `vendor/misspell/corrections.mjs` (the generated `DictMain` typo pairs)
+- License: MIT; the complete upstream notice is retained at `vendor/misspell/LICENSE`.
+
+Only the locale-neutral `DictMain` is reproduced (28,047 pairs). The British/American locale dictionaries are deliberately excluded so Rewriter makes no spelling-variant opinions.
+
 No code or rules from Turnitout or TextHumanize are included.

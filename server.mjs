@@ -14,6 +14,9 @@ const files = new Map([
   ['/vendor/write-good/lexicons.mjs', ['vendor/write-good/lexicons.mjs', 'text/javascript']],
   ['/vendor/proselint/checks.mjs', ['vendor/proselint/checks.mjs', 'text/javascript']],
   ['/vendor/textstat/formulas.mjs', ['vendor/textstat/formulas.mjs', 'text/javascript']],
+  ['/spell.mjs', ['spell.mjs', 'text/javascript']],
+  ['/vendor/dictionary-en/dictionary.mjs', ['vendor/dictionary-en/dictionary.mjs', 'text/javascript']],
+  ['/vendor/misspell/corrections.mjs', ['vendor/misspell/corrections.mjs', 'text/javascript']],
 ]);
 const port = Number(process.env.PORT || 4173);
 export const server = createServer(async (req, res) => {

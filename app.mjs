@@ -106,7 +106,7 @@ function renderSuggestions() {
     const ruleSource = change.source || change.upstreamSource;
     if (ruleSource) {
       const attribution = element('a', `${change.source ? 'Source' : 'Additional alternatives'}: ${ruleSource.name} · ${ruleSource.license}`, 'rule-source');
-      attribution.href = `${ruleSource.url}/blob/${ruleSource.commit}/lib/patterns.js`;
+      attribution.href = `${ruleSource.url}/blob/${ruleSource.commit}`;
       attribution.target = '_blank';
       attribution.rel = 'noopener noreferrer';
       detail.append(attribution);
@@ -160,7 +160,7 @@ function renderSuggestions() {
 }
 function run() {
   if (!source.value.trim()) { message('Add some writing first, or try the sample.'); source.focus(); return; }
-  const sources = ['rewriter', 'retext-simplify', 'write-good', 'proselint'].filter(id => $(`source-${id}`).checked);
+  const sources = ['rewriter', 'retext-simplify', 'write-good', 'proselint', 'spell'].filter(id => $(`source-${id}`).checked);
   if (!sources.length) { message('Choose at least one source to find improvements.'); return; }
   try {
     result = analyze(source.value, { sources, protectQuotes: $('protect-quotes').checked, protectedTerms: $('protected-terms').value.split('\n').map(term => term.trim()).filter(Boolean) });
@@ -193,7 +193,7 @@ $('clear').addEventListener('click', () => {
   invalidate();
   source.focus();
 });
-for (const id of ['source-rewriter', 'source-retext-simplify', 'source-write-good', 'source-proselint', 'protect-quotes']) $(id).addEventListener('change', () => {
+for (const id of ['source-rewriter', 'source-retext-simplify', 'source-write-good', 'source-proselint', 'source-spell', 'protect-quotes']) $(id).addEventListener('change', () => {
   const hadResult = !!result;
   invalidate();
   if (hadResult) message('Settings changed. Find improvements again to refresh your preview.');

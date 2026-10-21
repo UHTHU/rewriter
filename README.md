@@ -17,7 +17,7 @@ No `npm install` or build step is required. The local server serves a fixed allo
 ## Use
 
 1. Paste text, import a UTF-8 `.txt` / `.md` / `.markdown` file, or select **Try a sample**.
-2. Choose your sources — **Rewriter** rules, **retext-simplify**, **write-good**, and **proselint**; all are on by default and each suggestion or finding names the dataset it comes from.
+2. Choose your sources — **Rewriter** rules, **retext-simplify**, **write-good**, **proselint**, and **Spell check**; all are on by default and each suggestion or finding names the dataset it comes from.
 3. Select **Find improvements** (or Cmd/Ctrl+Enter).
 4. Review each suggestion with **Accept** or **Keep original**. Local phrase edits initially enter the preview. Imported and style suggestions are marked **Review first** and enter the preview only after acceptance. Switch to **Changes** to see before/after markup.
 5. For entries with multiple alternatives, choose a replacement (or **Remove phrase**) from the dropdown. Changing the choice resets its acceptance; accept again to apply it. Removal adjusts adjacent horizontal whitespace but does not repair grammar or punctuation.
@@ -35,6 +35,7 @@ Your text is kept in tab memory, not localStorage, cookies, a database, or serve
 - Analysis checks adapt write-good (MIT): wordy phrases, passive voice, lexical illusions, weasel words, weak adverbs and sentence openers; and proselint (BSD-3-Clause): redundancy pairs, hedging, and uncomparables. They flag patterns, not grammar errors, and false positives happen. Findings are advisory and never edit the text; review-first rewrites appear only where a safe rewrite exists. Intensifier removals, ten cliché replacements, and the "too many"/"too few" exemption are Rewriter's own editorial choices, not upstream behavior.
 - Readability scores (Flesch Reading Ease, Flesch–Kincaid Grade, Gunning Fog, SMOG, Coleman–Liau, ARI) follow textstat's published formulas (MIT) with a heuristic syllable counter instead of textstat's CMUdict + pyphen pipeline. Treat the scores as approximate before/after signals, not measurements.
 - Vale is not included: its Go engine and separately licensed style packs cannot be bundled here.
+- Spell checking uses the SCOWL-derived en_US Hunspell dictionary (`dictionary-en`, MIT AND BSD), expanded through its affix rules, plus the `misspell` typo map (MIT, 28,047 pairs). Suggestion ranking is a heuristic edit-distance search. Contractions and possessives, ALL-CAPS acronyms, and inner-caps names are skipped; unknown capitalized words are treated as proper nouns unless they match a known typo, so misspellings at sentence start are caught while names stay untouched.
 - Pattern-based protection for fenced/inline/indented code, Markdown links, URLs, email, common citations, math, LaTeX commands/environments, block quotations, and optional quoted text.
 - These protections are conservative heuristics, not full Markdown/LaTeX parsers. They can miss uncommon syntax. Natural language that resembles a protected pattern may also be skipped.
 - Rules do not understand meaning, word sense, or specialist terminology. Changes can alter nuance. Review suggestions before use.
@@ -48,12 +49,14 @@ Your text is kept in tab memory, not localStorage, cookies, a database, or serve
 - `rules.mjs`: original phrase rules, optional context requirements/exceptions, category, reason, and explicit-review status. Add curated rules here. Context conditions are bundled regular expressions, not user-entered code.
 - `upstream-rules.mjs`: all upstream entries, preferred alternatives, and pinned source metadata. Removal-only entries and the upstream editorial marker `remove` become empty replacement choices. `vendor/retext-simplify/` retains upstream data and the license.
 - `checks.mjs`: write-good and proselint checks mapped to findings (no rewrite) or review-first rewrites where safe. `vendor/write-good/` and `vendor/proselint/` retain upstream data and licenses.
+- `spell.mjs`: dictionary lookup with Hunspell affix expansion, typo corrections, and edit-distance suggestions. `vendor/dictionary-en/` and `vendor/misspell/` retain upstream data and licenses.
 - `readability.mjs`: textstat-derived readability formulas with a heuristic syllable estimator. `vendor/textstat/` retains formula provenance and the license.
 - `app.mjs`: import/export, review decisions, findings, and DOM rendering. Imported text is rendered as text, never interpreted as HTML.
 - `server.mjs`: dependency-free static server. Content Security Policy disables outgoing browser connections and external scripts.
 - `tests/alternatives.test.mjs`: expanded coverage, replacement selection, explicit acceptance, deletion, and shared diff/output spans.
 - `tests/engine.test.mjs`: protection, boundary, decision, and round-trip checks.
 - `tests/checks.test.mjs`: findings vs review-first rewrites, exceptions, and protection behavior.
+- `tests/spell.test.mjs`: typo corrections, suggestions, word-shape filters, and protection behavior.
 - `tests/readability.test.mjs`: syllable estimation and readability formula checks.
 - `tests/fixtures/meaning.json`: curated academic, technical, grammatical and editorial regression examples. `tests/meaning.test.mjs` checks expected outputs, rejected-edit round trips, explicit acceptance, source provenance and selected quantities/negation markers. The contextual regression corpus uses original rules except where upstream examples are named; a separate exhaustive compatibility test covers every upstream entry. These are regression checks, not a representative benchmark or proof of semantic equivalence.
 
@@ -61,6 +64,6 @@ Your text is kept in tab memory, not localStorage, cookies, a database, or serve
 npm test
 ```
 
-Version 0.3 includes retext-simplify phrase data pinned to commit `c7686ac9c3e07c28f84be87e48d28328b4047e3c`, write-good lexicon data pinned to commit `6940b034c6f5a7e101c01a24d651a778fc3fe435`, proselint check data pinned to commit `dbed789caae662d06c7c8a5a13dd31f1acd36f5c`, and textstat formulas pinned to commit `30303f95031f5e29f2811ea1bd4126f76cb828a1`. See `THIRD_PARTY_NOTICES.md` and the licenses under `vendor/`. The upstream linters and their runtime dependencies are not bundled. No Turnitout or TextHumanize code is included.
+Version 0.3 includes retext-simplify phrase data pinned to commit `c7686ac9c3e07c28f84be87e48d28328b4047e3c`, write-good lexicon data pinned to commit `6940b034c6f5a7e101c01a24d651a778fc3fe435`, proselint check data pinned to commit `dbed789caae662d06c7c8a5a13dd31f1acd36f5c`, textstat formulas pinned to commit `30303f95031f5e29f2811ea1bd4126f76cb828a1`, the dictionary-en Hunspell data pinned to commit `8cfea406b505e4d7df52d5a19bce525df98c54ab`, and misspell typo data pinned to commit `c0b55c8239520f6b5aa15a0207ca8b28027ba49e`. See `THIRD_PARTY_NOTICES.md` and the licenses under `vendor/`. The upstream linters and their runtime dependencies are not bundled. No Turnitout or TextHumanize code is included.
 
 License: MIT; see `LICENSE`.

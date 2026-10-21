@@ -33,6 +33,7 @@ import {
   lexicalIllusionPattern,
   lexicalIllusionExceptions,
 } from './vendor/proselint/checks.mjs';
+import { spellChecks } from './spell.mjs';
 
 // Original curation: intensifiers whose removal leaves the meaning intact.
 // Removal rewrites only survive at match time when grammar stays sound (the
@@ -211,3 +212,7 @@ export const patternChecks = [
     reason: original => `Comparison of an uncomparable: ${quoted(original)} is not comparable.`,
   },
 ];
+
+// Every text-level check the engine runs: regex-based patterns plus
+// scan-based checks (spell) that report their own spans and replacements.
+export const textChecks = [...patternChecks, ...spellChecks];

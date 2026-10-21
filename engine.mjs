@@ -1,5 +1,5 @@
 import { rules } from './rules.mjs';
-import { phraseChecks, patternChecks } from './checks.mjs';
+import { phraseChecks, textChecks } from './checks.mjs';
 import { readability, readabilityCounts } from './readability.mjs';
 
 export const MAX_LENGTH = 200_000;
@@ -15,10 +15,10 @@ const compiledRules = [...rules, ...phraseChecks].map(rule => ({
 
 // Pattern checks carry their own regex; the `d` flag exposes group indices
 // so a check can report a narrower span (hitGroup) than the full match.
-const compiledPatterns = patternChecks.map(check => ({
-  ...check,
-  regex: new RegExp(check.pattern, check.flags.includes('d') ? check.flags : `${check.flags}d`),
-}));
+// Scan-based checks (spell) produce their own match objects instead.
+const compiledChecks = textChecks.map(check => check.scan
+  ? check
+  : ({ ...check, regex: new RegExp(check.pattern, check.flags.includes('d') ? check.flags : `${check.flags}d`) }));
 
 // Removing a sentence opener would leave the next word uncapitalized, so a
 // removal rewrite at sentence start is downgraded to a finding.
@@ -100,7 +100,7 @@ function replacementFor(rule, text, end) {
 // Rewriter's own. Merged overlaps keep Rewriter's defaults, so they belong to
 // "rewriter" and only expose retext-simplify as extra alternatives.
 function datasetOf(rule) {
-  return rule.source?.name ?? 'rewriter';
+  return rule.dataset ?? rule.source?.name ?? 'rewriter';
 }
 
 export function analyze(text, options = {}) {
@@ -156,25 +156,33 @@ export function analyze(text, options = {}) {
       });
     }
   }
-  for (const check of compiledPatterns) {
+  for (const check of compiledChecks) {
     if (options.includeUpstream === false && check.source) continue;
     if (!inScope(check)) continue;
-    for (const match of text.matchAll(check.regex)) {
-      const hit = check.hitGroup ? match.indices?.groups?.[check.hitGroup] : null;
-      const start = hit ? hit[0] : match.index;
-      const end = hit ? hit[1] : match.index + match[0].length;
-      const original = text.slice(start, end);
-      if (check.skip?.(text, start, end, match)) continue;
+    const hits = check.scan
+      ? check.scan(text)
+      : [...text.matchAll(check.regex)].map(match => {
+        const group = check.hitGroup ? match.indices?.groups?.[check.hitGroup] : null;
+        return { start: group ? group[0] : match.index, end: group ? group[1] : match.index + match[0].length };
+      });
+    for (const hit of hits) {
+      const start = hit.start;
+      const end = hit.end;
+      const original = hit.original ?? text.slice(start, end);
+      if (check.skip?.(text, start, end, hit)) continue;
       if (covered(start, end)) continue;
-      const resolvedReason = typeof check.reason === 'function' ? check.reason(original, check.replacement) : check.reason;
-      if (check.replacement === undefined) {
+      const replacement = hit.replacement ?? check.replacement;
+      const source = hit.source ?? check.source;
+      const rawReason = hit.reason ?? check.reason;
+      const resolvedReason = typeof rawReason === 'function' ? rawReason(original, replacement) : rawReason;
+      if (replacement === undefined) {
         findings.push({ id: `${check.id}-${start}`, start, end, original, category: check.category,
-          reason: resolvedReason, source: check.source });
+          reason: resolvedReason, source });
         continue;
       }
-      candidates.push({ id: `${check.id}-${start}`, start, end, original, replacement: check.replacement,
-        reviewOnly: true, category: check.category, source: check.source, reason: resolvedReason,
-        alternatives: [...new Set([check.replacement, ...(check.alternatives || [])])] });
+      candidates.push({ id: `${check.id}-${start}`, start, end, original, replacement,
+        reviewOnly: check.reviewOnly ?? true, category: check.category, source, reason: resolvedReason,
+        alternatives: [...new Set([replacement, ...(hit.alternatives ?? check.alternatives ?? [])])] });
     }
   }
   candidates.sort((a, b) => a.start - b.start || b.end - a.end);
