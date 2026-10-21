@@ -122,7 +122,11 @@ export function analyze(text, options = {}) {
       const start = match.index;
       const end = start + match[0].length;
       if (rule.skip?.(text, start, end, match)) continue;
-      if (word(text[start - 1]) || word(text[end])) continue;
+      // Boundaries matter only where the phrase itself starts or ends with a
+      // word character; punctuation-edge phrases like ", so to speak" take
+      // their neighbors as-is.
+      if (word(rule.phrase[0]) && word(text[start - 1])) continue;
+      if (word(rule.phrase.at(-1)) && word(text[end])) continue;
       if (covered(start, end)) continue;
       // Avoid converting mixed-case names or title-case headings.
       if (!rule.allowMixedCase && match[0] !== match[0].toLowerCase() && match[0] !== match[0].toUpperCase()
@@ -207,8 +211,11 @@ export function appliedEdits(text, changes, decisions = {}) {
     if (!isApplied(change, decisions)) continue;
     const edit = { ...change };
     if (edit.replacement === '') {
+      // Eat trailing space only when the span is not glued to a word on its
+      // left; otherwise the space is the separator the words need.
       const trailing = text.slice(edit.end).match(/^[ \t]+/);
-      if (trailing && /\S/.test(text[edit.end + trailing[0].length] || '')) edit.end += trailing[0].length;
+      const joinsWord = word(text[edit.start - 1]);
+      if (!joinsWord && trailing && /\S/.test(text[edit.end + trailing[0].length] || '')) edit.end += trailing[0].length;
       else {
         const preceding = text.slice(applied.at(-1)?.end || 0, edit.start).match(/[ \t]+$/);
         if (preceding) edit.start -= preceding[0].length;

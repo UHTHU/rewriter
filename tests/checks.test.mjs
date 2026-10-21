@@ -47,6 +47,21 @@ test('intensifiers and hedges can be removed once accepted', () => {
   assert.equal(applyChanges(text, changes, { [removal.id]: 'accepted' }), 'It was useful.');
 });
 
+test('punctuation-led phrases match against their neighbors', () => {
+  const mid = 'The result was, so to speak, final.';
+  const { changes } = analyze(mid, all);
+  const both = changes.find(candidate => candidate.original === ', so to speak,');
+  assert.ok(both);
+  assert.equal(both.replacement, '');
+  assert.ok(both.reviewOnly);
+  assert.equal(applyChanges(mid, changes, { [both.id]: 'accepted' }), 'The result was final.');
+  const end = 'The result was, so to speak.';
+  const tail = analyze(end, all);
+  const single = tail.changes.find(candidate => candidate.original === ', so to speak');
+  assert.ok(single);
+  assert.equal(applyChanges(end, tail.changes, { [single.id]: 'accepted' }), 'The result was.');
+});
+
 test('removal rewrites at sentence start stay findings to protect capitalization', () => {
   const text = 'Really good work.';
   const { changes, findings } = analyze(text, all);

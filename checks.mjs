@@ -127,8 +127,10 @@ export const phraseChecks = [
         : original => `${quoted(original)} is a cliché. Say the specific thing you mean.`,
     };
   }),
-  // proselint "hedging": "Hedging. Just say it."
-  ...hedgePhrases.map(phrase => ({
+  // proselint "hedging": "Hedging. Just say it." Punctuation-led phrases
+  // also get a both-commas form so a mid-sentence parenthetical (", so to
+  // speak,") removes cleanly without leaving a stray comma.
+  ...hedgePhrases.flatMap(phrase => [phrase, ...(phrase.startsWith(',') ? [`${phrase},`] : [])]).map(phrase => ({
     id: findingId('proselint-hedge', phrase),
     phrase,
     replacement: '',
