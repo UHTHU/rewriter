@@ -8,6 +8,7 @@ let decisions = {};
 let showDiff = false;
 let name = 'Untitled draft';
 let importRevision = 0;
+const cardIndex = new Map();
 const sample = 'In order to understand the results, we utilized a large number of examples. Due to the fact that the dataset contains approximately 1,200 entries, we are able to compare several approaches.\n\nIt is important to note that each and every change needs a second look. The final outcome should sound like you.\n\nThe original citation stays intact (Smith, 2024). So does the quotation: “We utilized a large number of examples.”\n\n```python\n# In order to preserve executable code\nresult = "utilize"\n```';
 function message(text) { $('message').textContent = text; }
 function wordLabel(text) { return `${metrics(text).words.toLocaleString()} words`; }
@@ -21,6 +22,7 @@ function invalidate() {
   result = null;
   decisions = {};
   $('review').hidden = true;
+  $('underline-layer').replaceChildren();
   $('source-count').textContent = wordLabel(source.value);
   $('output-count').textContent = 'Ready when you are';
   $('copy').disabled = $('download').disabled = true;
@@ -30,6 +32,31 @@ function invalidate() {
   message('');
 }
 function outputText() { return result ? applyChanges(source.value, result.changes, decisions) : ''; }
+// Colored underlines over the draft, mirroring the textarea metrics.
+function renderUnderlines() {
+  const layer = $('underline-layer');
+  layer.replaceChildren();
+  if (!result) return;
+  const text = source.value;
+  const marks = [
+    ...result.changes.filter(change => decisions[change.id] !== 'rejected'),
+    ...result.findings,
+  ].sort((a, b) => a.start - b.start || a.end - b.end);
+  let cursor = 0;
+  for (const mark of marks) {
+    if (mark.start < cursor) continue;
+    layer.append(document.createTextNode(text.slice(cursor, mark.start)));
+    const isFinding = mark.replacement === undefined;
+    const color = ['spelling', 'grammar'].includes(mark.category) ? 'ul-red'
+      : ['wordiness', 'clarity'].includes(mark.category) ? 'ul-blue' : 'ul-green';
+    const node = element(isFinding ? 'span' : 'mark', mark.original,
+      `ul ${color}${isFinding ? ' ul-finding' : ''}${decisions[mark.id] === 'accepted' ? ' ul-done' : ''}`);
+    node.dataset.id = mark.id;
+    layer.append(node);
+    cursor = mark.end;
+  }
+  layer.append(document.createTextNode(text.slice(cursor)));
+}
 function renderFindings() {
   const block = $('findings-block');
   const list = $('findings');
@@ -57,6 +84,7 @@ function renderFindings() {
       detail.append(attribution);
     }
     card.append(detail);
+    cardIndex.set(finding.id, card);
     list.append(card);
   }
 }
@@ -87,6 +115,7 @@ function renderOutput() {
   }
   $('review-status').textContent = pending ? `${pending} unreviewed. Suggestions marked “Review first” enter the preview only after acceptance.` : 'All suggestions reviewed.';
   $('accept-all').disabled = result.changes.every(change => decisions[change.id] === 'accepted');
+  renderUnderlines();
 }
 function renderSuggestions() {
   const list = $('suggestions');
@@ -157,6 +186,7 @@ function renderSuggestions() {
       controls.append(button);
     }
     card.append(detail, controls);
+    cardIndex.set(change.id, card);
     list.append(card);
   }
 }
@@ -254,4 +284,18 @@ $('file-input').addEventListener('change', async event => {
 for (const id of ['privacy-open', 'about-open']) $(id).addEventListener('click', () => $('about').showModal());
 $('about-close').addEventListener('click', () => $('about').close());
 $('about').addEventListener('click', event => { if (event.target === $('about')) { const r = $('about').getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) $('about').close(); } });
+source.addEventListener('scroll', () => {
+  const layer = $('underline-layer');
+  layer.scrollTop = source.scrollTop;
+  layer.scrollLeft = source.scrollLeft;
+});
+$('underline-layer').addEventListener('click', event => {
+  const id = event.target instanceof HTMLElement ? event.target.dataset.id : undefined;
+  if (!id) return;
+  const card = cardIndex.get(id);
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.add('ul-flash');
+  setTimeout(() => card.classList.remove('ul-flash'), 900);
+});
 window.addEventListener('pageshow', () => { if (!result) { source.value = ''; $('protected-terms').value = ''; } $('source-count').textContent = wordLabel(source.value); });

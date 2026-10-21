@@ -28,7 +28,7 @@
         <section class="editor-pane input-pane">
           <div class="pane-heading"><h2><span class="pane-number">01</span> Your draft</h2><button class="text-button subtle" id="clear">Clear</button></div>
           <label for="source" class="sr-only">Your original text</label>
-          <textarea id="source" autocomplete="off" spellcheck="false" maxlength="200000" placeholder="Start with what you want to say.&#10;&#10;Paste your writing here, or try the sample to see how it works."></textarea>
+          <div class="editor-stack"><textarea id="source" autocomplete="off" spellcheck="false" maxlength="200000" placeholder="Start with what you want to say.&#10;&#10;Paste your writing here, or try the sample to see how it works."></textarea><div id="underline-layer" class="underline-layer" aria-hidden="true"></div></div>
           <div class="pane-footer"><span id="source-count">0 words</span><span>Original stays untouched</span></div>
         </section>
         <section class="editor-pane output-pane">

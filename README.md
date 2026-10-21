@@ -25,6 +25,8 @@ No `npm install` or build step is required. The local server serves a fixed allo
 
 Diagnostics without a safe rewrite — passive voice, repeated words, weasel words, clichés, sentence openers — appear under **Findings** with the matched text in context, an explanation, and a source link. Findings never change the draft. Where a safe rewrite exists (selected clichés, intensifiers, hedges, and redundancy pairs), it is offered as a review-first suggestion instead.
 
+Every suggestion and finding is also underlined in your draft: solid for review-first rewrites, dashed for findings, colored red for correctness (spelling, grammar), blue for clarity, green for phrasing and voice. Click an underline to jump to its card; accepted edits fade, and nothing is applied without you.
+
 The original draft stays unchanged. Expand **Keep specific terms unchanged** to protect technical vocabulary or names (one per line, up to 100 terms, 120 characters each). Matching is case-insensitive and uses term boundaries. Terms also remain only in tab memory.
 
 Your text is kept in tab memory, not localStorage, cookies, a database, or server logs. Reloading resets the editor. Exported files and text copied to the clipboard persist wherever you save/paste them.
@@ -54,7 +56,7 @@ Your text is kept in tab memory, not localStorage, cookies, a database, or serve
 - `grammar.mjs`: Rewriter's own context rules for confused words and common slips; contested usage becomes findings.
 - `score.mjs`: the writing-score heuristic and the tone/delivery readout (VADER valences, `vendor/vader/`).
 - `readability.mjs`: textstat-derived readability formulas with a heuristic syllable estimator. `vendor/textstat/` retains formula provenance and the license.
-- `app.mjs`: import/export, review decisions, findings, and DOM rendering. Imported text is rendered as text, never interpreted as HTML.
+- `app.mjs`: import/export, review decisions, findings, inline underlines, and DOM rendering. Imported text is rendered as text, never interpreted as HTML.
 - `server.mjs`: dependency-free static server. Content Security Policy disables outgoing browser connections and external scripts.
 - `tests/alternatives.test.mjs`: expanded coverage, replacement selection, explicit acceptance, deletion, and shared diff/output spans.
 - `tests/engine.test.mjs`: protection, boundary, decision, and round-trip checks.

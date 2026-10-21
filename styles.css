@@ -15,3 +15,15 @@
 .suggestion.finding{border-style:dashed}
 .finding-context{font:15px/1.7 Georgia;margin:7px 0;color:#4a5148;word-break:break-word}
 .finding-context mark{background:#f2e9c9;color:inherit;padding:1px 3px;border-radius:3px}
+
+/* Inline underlines mirroring the textarea metrics exactly. */
+.editor-stack{position:relative}
+.underline-layer{position:absolute;inset:0;overflow:hidden;padding:6px 28px 28px;font-size:16px;line-height:1.85;font-family:Georgia,'Times New Roman',serif;letter-spacing:.1px;color:transparent;white-space:pre-wrap;overflow-wrap:anywhere;pointer-events:none;user-select:none}
+.ul{color:#3d493e;pointer-events:auto;cursor:pointer;border-bottom:2px solid transparent;border-radius:1px}
+.ul-red{border-bottom-color:#c25b4e}
+.ul-blue{border-bottom-color:#4e7ec2}
+.ul-green{border-bottom-color:#6b9b4e}
+.ul-finding{border-bottom-style:dashed}
+.ul-done{opacity:.4;border-bottom-style:dotted}
+.ul-flash{background:#f2e9c9;transition:background .3s}
+@media(max-width:680px){.underline-layer{padding:5px 20px 20px;font-size:16px}}
