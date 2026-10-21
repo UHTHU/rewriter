@@ -1,4 +1,5 @@
 import { analyze, applyChanges, appliedEdits, isApplied, metrics, MAX_LENGTH } from './engine.mjs';
+import { writingScore, tone } from './score.mjs';
 
 const $ = id => document.getElementById(id);
 const source = $('source');
@@ -77,8 +78,9 @@ function renderOutput() {
   $('output-count').textContent = `${wordLabel(output)} · ${active.length} ${active.length === 1 ? 'edit' : 'edits'}`;
   $('copy').disabled = $('download').disabled = false;
   const before = metrics(source.value), after = metrics(output);
+  const t = tone(output);
   $('summary').replaceChildren();
-  for (const [label, value] of [['Words', `${before.words} → ${after.words}`], ['Words / sentence ≈', `${before.average} → ${after.average}`], ['Reading ease ≈', `${before.readability.ease} → ${after.readability.ease}`], ['Grade level ≈', `${before.readability.grade} → ${after.readability.grade}`], ['Edits in preview', active.length]]) {
+  for (const [label, value] of [['Words', `${before.words} → ${after.words}`], ['Words / sentence ≈', `${before.average} → ${after.average}`], ['Reading ease ≈', `${before.readability.ease} → ${after.readability.ease}`], ['Grade level ≈', `${before.readability.grade} → ${after.readability.grade}`], ['Writing score ≈', `${writingScore(source.value)} → ${writingScore(output)}`], ['Tone', `${t.label} · ${t.formality}`], ['Delivery', t.confidence], ['Edits in preview', active.length]]) {
     const row = element('div', undefined, 'summary-row');
     row.append(element('span', label), element('strong', String(value)));
     $('summary').append(row);

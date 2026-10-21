@@ -61,4 +61,13 @@ Rewriter parses the Hunspell data at load time and expands its affix rules in it
 
 Only the locale-neutral `DictMain` is reproduced (28,047 pairs). The British/American locale dictionaries are deliberately excluded so Rewriter makes no spelling-variant opinions.
 
+## vader
+
+- Source: https://github.com/cjhutto/vaderSentiment
+- Pinned commit: `44fc044cd877310ee8278a0eadf34bcd50d41d06`
+- Local copy: `vendor/vader/lexicon.mjs` (the `vader_lexicon.txt` word/valence pairs)
+- License: MIT; the complete upstream notice is retained at `vendor/vader/LICENSE.txt`.
+
+Data only; the Python runtime is not bundled. Rewriter aggregates the valences with its own formality and confidence signals for the tone readout.
+
 No code or rules from Turnitout or TextHumanize are included.

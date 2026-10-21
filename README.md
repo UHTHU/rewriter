@@ -34,6 +34,7 @@ Your text is kept in tab memory, not localStorage, cookies, a database, or serve
 - English phrase simplification using original rules and all 327 entries of the pinned, attributed MIT-licensed retext-simplify dataset (394 distinct rules after merging 19 overlaps with 86 original rules). Context guards skip ambiguous constructions such as `approximately normal`, `has commenced`, and `make a decision easier`. These guards reduce errors; they do not establish general meaning preservation.
 - Analysis checks adapt write-good (MIT): wordy phrases, passive voice, lexical illusions, weasel words, weak adverbs and sentence openers; and proselint (BSD-3-Clause): redundancy pairs, hedging, and uncomparables. They flag patterns, not grammar errors, and false positives happen. Findings are advisory and never edit the text; review-first rewrites appear only where a safe rewrite exists. Intensifier removals, ten cliché replacements, and the "too many"/"too few" exemption are Rewriter's own editorial choices, not upstream behavior.
 - Readability scores (Flesch Reading Ease, Flesch–Kincaid Grade, Gunning Fog, SMOG, Coleman–Liau, ARI) follow textstat's published formulas (MIT) with a heuristic syllable counter instead of textstat's CMUdict + pyphen pipeline. Treat the scores as approximate before/after signals, not measurements.
+- The writing score (0–100) is a documented heuristic blend of readability, long-sentence share, and vocabulary variety; the tone and delivery readouts aggregate VADER valences (MIT) with Rewriter's own formality and confidence signals. All of them are descriptive indicators, not grades, authorship scores, or detector outcomes.
 - Vale is not included: its Go engine and separately licensed style packs cannot be bundled here.
 - Spell checking uses the SCOWL-derived en_US Hunspell dictionary (`dictionary-en`, MIT AND BSD), expanded through its affix rules, plus the `misspell` typo map (MIT, 28,047 pairs). Suggestion ranking is a heuristic edit-distance search. Contractions and possessives, ALL-CAPS acronyms, and inner-caps names are skipped; unknown capitalized words are treated as proper nouns unless they match a known typo, so misspellings at sentence start are caught while names stay untouched.
 - Pattern-based protection for fenced/inline/indented code, Markdown links, URLs, email, common citations, math, LaTeX commands/environments, block quotations, and optional quoted text.
@@ -50,6 +51,8 @@ Your text is kept in tab memory, not localStorage, cookies, a database, or serve
 - `upstream-rules.mjs`: all upstream entries, preferred alternatives, and pinned source metadata. Removal-only entries and the upstream editorial marker `remove` become empty replacement choices. `vendor/retext-simplify/` retains upstream data and the license.
 - `checks.mjs`: write-good and proselint checks mapped to findings (no rewrite) or review-first rewrites where safe. `vendor/write-good/` and `vendor/proselint/` retain upstream data and licenses.
 - `spell.mjs`: dictionary lookup with Hunspell affix expansion, typo corrections, and edit-distance suggestions. `vendor/dictionary-en/` and `vendor/misspell/` retain upstream data and licenses.
+- `grammar.mjs`: Rewriter's own context rules for confused words and common slips; contested usage becomes findings.
+- `score.mjs`: the writing-score heuristic and the tone/delivery readout (VADER valences, `vendor/vader/`).
 - `readability.mjs`: textstat-derived readability formulas with a heuristic syllable estimator. `vendor/textstat/` retains formula provenance and the license.
 - `app.mjs`: import/export, review decisions, findings, and DOM rendering. Imported text is rendered as text, never interpreted as HTML.
 - `server.mjs`: dependency-free static server. Content Security Policy disables outgoing browser connections and external scripts.
@@ -57,6 +60,8 @@ Your text is kept in tab memory, not localStorage, cookies, a database, or serve
 - `tests/engine.test.mjs`: protection, boundary, decision, and round-trip checks.
 - `tests/checks.test.mjs`: findings vs review-first rewrites, exceptions, and protection behavior.
 - `tests/spell.test.mjs`: typo corrections, suggestions, word-shape filters, and protection behavior.
+- `tests/grammar.test.mjs`: confused-word context rules and contested-usage findings.
+- `tests/score.test.mjs`: score bounds, sentiment labels, and tone signals.
 - `tests/readability.test.mjs`: syllable estimation and readability formula checks.
 - `tests/fixtures/meaning.json`: curated academic, technical, grammatical and editorial regression examples. `tests/meaning.test.mjs` checks expected outputs, rejected-edit round trips, explicit acceptance, source provenance and selected quantities/negation markers. The contextual regression corpus uses original rules except where upstream examples are named; a separate exhaustive compatibility test covers every upstream entry. These are regression checks, not a representative benchmark or proof of semantic equivalence.
 
